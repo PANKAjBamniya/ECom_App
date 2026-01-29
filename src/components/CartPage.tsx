@@ -17,7 +17,6 @@ const CartPage = () => {
         0
     );
 
-    console.log(items)
     return (
         <div className="min-h-screen w-full flex justify-center bg-gray-50 dark:bg-gray-900">
             <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-md flex flex-col h-[90vh] mt-4 overflow-hidden">

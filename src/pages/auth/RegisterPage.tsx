@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { Loading, registerUser, setError } from "../../store/slice/authSlice";
 import { useRegisterMutation } from "../../store/api/authApi";
 import googleLogo from "../../assets/googleLogo.png"
+import GoogleAuthButton from "../../components/common/GoogleAuthButton";
 
 
 const registerSchema = z.object({
@@ -21,6 +22,9 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
+    const { isLoggedIn: isGoogleLoggedIn } = useSelector(
+        (state: RootState) => state.googleAuth
+    );
     const { user } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -62,13 +66,13 @@ const RegisterPage = () => {
     };
 
     useEffect(() => {
-        if (user) {
+        if (user || isGoogleLoggedIn) {
             navigate("/");
         }
     }, [user, navigate]);
 
     return (
-        <div className="min-h-screen bg-gray-50 px-4 py-6">
+        <div className="min-h-screen bg-gray-50 px-4 py-6 flex justify-center items-center ">
             <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-6">
                 {/* Header */}
                 <div className="mb-6">
@@ -146,10 +150,7 @@ const RegisterPage = () => {
                 </form>
 
                 {/* Google Button */}
-                <button className="w-full border border-gray-300 rounded-lg py-3 flex items-center justify-center gap-2 text-sm font-medium active:scale-[0.98] transition">
-                    <img src={googleLogo} alt="Google" className="w-4 h-4" />
-                    Continue with Google
-                </button>
+                <GoogleAuthButton />
 
                 {/* Footer */}
                 <p className="text-center text-sm text-gray-500 mt-5">

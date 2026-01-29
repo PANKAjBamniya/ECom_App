@@ -141,6 +141,17 @@ const SingleProductPage = () => {
                         </p>
                     )}
 
+                    <p className="flex items-center gap-1 text-sm mt-3 text-gray-600 dark:text-gray-300">
+                        <RiStarSFill className="text-yellow-500 text-lg" />
+                        <Link
+                            to="/review"
+                            state={{ reviews: singleProduct.reviews }}
+                            className="underline hover:text-black dark:hover:text-white"
+                        >
+                            reviews
+                        </Link>
+                    </p>
+
                     {/* Description */}
                     <p className="text-gray-600 dark:text-gray-300 mt-4 text-sm leading-relaxed">
                         {singleProduct.description}

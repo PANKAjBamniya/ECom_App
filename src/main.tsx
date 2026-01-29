@@ -1,23 +1,23 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux';
-import './index.css'
-import { store } from './store/index.ts';
-import App from './App.tsx'
-import { BrowserRouter } from 'react-router-dom'
-import { ToastContainer } from 'react-toastify';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { ToastContainer } from "react-toastify";
 
+import "./index.css";
+import { store } from "./store";
+import App from "./App";
 
-
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <App />
-        <ToastContainer position="top-right" />
-
-      </BrowserRouter>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <BrowserRouter>
+          <App />
+          <ToastContainer position="top-right" />
+        </BrowserRouter>
+      </GoogleOAuthProvider>
     </Provider>
-
-  </StrictMode>,
-)
+  </StrictMode>
+);

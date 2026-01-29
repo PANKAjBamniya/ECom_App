@@ -12,20 +12,22 @@ import Loader from "../../components/common/Loader";
 import { useGetProductsQuery } from "../../store/products/productApi";
 
 const Home = () => {
+    const { isLoggedIn: isGoogleLoggedIn } = useSelector(
+        (state: RootState) => state.googleAuth
+    );
     const { data: products, isLoading, error } = useGetProductsQuery();
     const navigate = useNavigate();
     const [query, setQuery] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All"); // ✅ Track selected category
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     const user = useSelector((state: RootState) => state.auth.user);
 
     useEffect(() => {
-        if (!user) {
+        if (!user && !isGoogleLoggedIn) {
             navigate("/login");
         }
     }, [user, navigate]);
 
-    // ✅ Extract unique categories from products
     const categories = useMemo(() => {
         if (!products) return ["All"];
 

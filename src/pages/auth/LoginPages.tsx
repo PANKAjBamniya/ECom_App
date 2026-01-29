@@ -11,6 +11,7 @@ import { useLoginMutation } from "../../store/api/authApi";
 import { toast } from "react-toastify";
 import googleLogo from "../../assets/googleLogo.png"
 import facebookLogo from "../../assets/logos_facebook.png"
+import GoogleAuthButton from "../../components/common/GoogleAuthButton";
 
 const loginSchema = z.object({
     email: z.string().email("Please enter a Vaild Email Address"),
@@ -20,6 +21,9 @@ const loginSchema = z.object({
 type LoginformData = z.infer<typeof loginSchema>
 
 const LoginPages = () => {
+    const { isLoggedIn: isGoogleLoggedIn } = useSelector(
+        (state: RootState) => state.googleAuth
+    );
     const { user, isLoading } = useSelector((state: RootState) => state.auth);
     const [loginApi] = useLoginMutation();
 
@@ -58,12 +62,11 @@ const LoginPages = () => {
     };
 
 
-
     useEffect(() => {
-        if (user) {
-            navigate("/")
+        if (user || isGoogleLoggedIn) {
+            navigate("/");
         }
-    }, [])
+    }, [user, navigate]);
 
     return (
         <div className="p-20 flex items-center justify-center px-4 w-full">
@@ -131,15 +134,13 @@ const LoginPages = () => {
                 </div>
 
                 {/* Google Button */}
-                <button className="w-full border border-gray-300 rounded-lg py-3 flex items-center justify-center gap-2 text-sm font-medium active:scale-[0.98] transition mt-4">
-                    <img src={googleLogo} alt="Google" className="w-[20px]" />
-                    Continue with Google
-                </button>
+                <GoogleAuthButton />
 
                 {/* Google Button */}
-                <button className="w-full border bg-[#1977F2] border-gray-300 rounded-lg py-4 text-white flex items-center justify-center gap-2 text-sm font-medium active:scale-[0.98] transition mt-4">
-                    <img src={facebookLogo} alt="Google" className="w-[20px]" />
-                    Continue with facebook
+                <button className="w-full border bg-[#1977F2] border-gray-300 rounded-lg py-3 items-center justify-between text-white flex px-3 gap-2 text-sm font-medium active:scale-[0.98] transition mt-4">
+                    <img src={facebookLogo} alt="Google" className="w-4.6 h-4.6 " />
+                    <p className="text-center">Continue with facebook</p>
+                    <span />
                 </button>
 
                 {/* Footer */}

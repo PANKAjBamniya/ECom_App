@@ -82,7 +82,7 @@ const MyOrder = () => {
                                                 className="flex items-center gap-3"
                                             >
                                                 <img
-                                                    src={item.thumbnail}
+                                                    src={item.image.url}
                                                     alt={item.title}
                                                     className="w-10 h-10 rounded-lg object-cover"
                                                 />

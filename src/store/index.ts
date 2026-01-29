@@ -6,6 +6,7 @@ import cart from "./slice/cartSlice";
 import theme from "./slice/themeSlice";
 import order from "./slice/orderSlice";
 import language from "./slice/languageSlice";
+import googleAuth from "./slice/googleAuthSlice"
 
 export const store = configureStore({
     reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
         theme,
         order,
         language,
+        googleAuth,
         [api.reducerPath]: api.reducer,
     },
 
