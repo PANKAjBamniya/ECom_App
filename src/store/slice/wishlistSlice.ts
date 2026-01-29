@@ -1,7 +1,5 @@
-// store/slice/wishlistSlice.ts
-import { createSlice, type PayloadAction, } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Product } from "../../types/product";
-
 
 interface WishlistState {
     items: Product[];
@@ -16,8 +14,9 @@ const wishlistSlice = createSlice({
     initialState,
     reducers: {
         addToWishlist: (state, action: PayloadAction<Product>) => {
+
             const exists = state.items.find(
-                (item) => item.id === action.payload.id
+                (item) => item._id === action.payload._id
             );
 
             if (!exists) {
@@ -25,15 +24,19 @@ const wishlistSlice = createSlice({
                 localStorage.setItem("wishlist", JSON.stringify(state.items));
             }
         },
-        removeFromWishlist: (state, action: PayloadAction<number>) => {
+        removeFromWishlist: (state, action: PayloadAction<string>) => {
+
             state.items = state.items.filter(
-                (item) => item.id !== action.payload
+                (item) => item._id !== action.payload
             );
             localStorage.setItem("wishlist", JSON.stringify(state.items));
         },
-
+        clearWishlist: (state) => {
+            state.items = [];
+            localStorage.removeItem("wishlist");
+        },
     },
 });
 
-export const { addToWishlist, removeFromWishlist } = wishlistSlice.actions;
+export const { addToWishlist, removeFromWishlist, clearWishlist } = wishlistSlice.actions;
 export default wishlistSlice.reducer;

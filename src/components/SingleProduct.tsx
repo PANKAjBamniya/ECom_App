@@ -3,52 +3,72 @@ import NotificationIcon from "./common/NotificationIcon";
 import { IoArrowBack } from "react-icons/io5";
 import { RiStarSFill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../store";
-import { fetchSingleProduct } from "../store/slice/productSlice";
-import { useEffect } from "react";
+import type { RootState } from "../store";
 import { FaHeart } from "react-icons/fa";
 import { CiHeart } from "react-icons/ci";
-import { addToWishlist } from "../store/slice/wishlistSlice";
+import { addToWishlist, removeFromWishlist } from "../store/slice/wishlistSlice";
 import { addToCart } from "../store/slice/cartSlice";
 import { toast } from "react-toastify";
 import Loader from "./common/Loader";
+import { useGetProductByIdQuery } from "../store/products/productApi";
+import { useMemo } from "react";
 
 const SingleProductPage = () => {
-    const { singleProduct, loading, error } = useSelector(
-        (state: RootState) => state.product
-    );
-
-    const isSaved = useSelector((state: RootState) =>
-        state.wishlist.items.some(
-            (item) => item.id === singleProduct?.id
-        )
-    );
-
-    const dispatch = useDispatch<AppDispatch>();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { id } = useParams<{ id: string }>();
 
-    useEffect(() => {
-        if (id) {
-            dispatch(fetchSingleProduct(Number(id)));
-        }
-    }, [id, dispatch]);
+    const { data: singleProduct, isLoading, error } = useGetProductByIdQuery(id!);
 
-    if (loading) return <Loader />;
 
-    if (error) {
+    const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+
+
+    const isSaved = useMemo(() => {
+        if (!singleProduct) return false;
+        return wishlistItems.some((item) => item._id === singleProduct._id);
+    }, [wishlistItems, singleProduct]);
+
+    if (isLoading) {
         return (
-            <p className="text-center mt-10 text-red-500 dark:text-red-400">
-                {error}
-            </p>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                <Loader />
+            </div>
         );
     }
 
-    if (!singleProduct) return null;
+
+    if (error || !singleProduct) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                <div className="text-center">
+                    <p className="text-red-500 dark:text-red-400 text-lg mb-4">
+                        Product not found
+                    </p>
+                    <button
+                        onClick={() => navigate("/")}
+                        className="bg-black text-white px-6 py-2 rounded-lg"
+                    >
+                        Go Back Home
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const handleToggleWishlist = () => {
+        if (isSaved) {
+            dispatch(removeFromWishlist(singleProduct._id));
+            toast.success("Removed from wishlist");
+        } else {
+            dispatch(addToWishlist(singleProduct));
+            toast.success("Added to wishlist");
+        }
+    };
 
     const handleAddToCart = () => {
         dispatch(addToCart(singleProduct));
-        toast.success("Product Added Successfully");
+        toast.success("Product added to cart");
         navigate("/cart");
     };
 
@@ -60,13 +80,13 @@ const SingleProductPage = () => {
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <button
                         onClick={() => navigate(-1)}
-                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+                        className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition"
                     >
                         <IoArrowBack className="text-lg dark:text-white" />
                     </button>
 
                     <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        Product
+                        Product Details
                     </h1>
 
                     <NotificationIcon />
@@ -77,76 +97,86 @@ const SingleProductPage = () => {
                     {/* Image */}
                     <div className="h-96 bg-gray-200 dark:bg-gray-700 rounded-xl mb-4 overflow-hidden relative">
                         <img
-                            src={singleProduct.thumbnail}
+                            src={singleProduct.image.url}
                             alt={singleProduct.title}
                             className="w-full h-full object-cover"
                         />
 
-                        {/* Wishlist */}
-                        <div
-                            className="absolute top-2 right-2 bg-white/80 dark:bg-black/60 backdrop-blur rounded-full p-2 cursor-pointer"
-                            onClick={() => dispatch(addToWishlist(singleProduct))}
+                        {/* Wishlist Button */}
+                        <button
+                            className="absolute top-4 right-4 bg-white/90 dark:bg-black/70 backdrop-blur rounded-full p-3 cursor-pointer hover:scale-110 transition"
+                            onClick={handleToggleWishlist}
+                            aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
                         >
                             {isSaved ? (
                                 <FaHeart className="text-red-500 text-xl" />
                             ) : (
                                 <CiHeart className="text-gray-700 dark:text-gray-200 text-xl" />
                             )}
-                        </div>
+                        </button>
                     </div>
 
-                    {/* Title */}
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {singleProduct.title}
-                    </h2>
+                    {/* Title & Category */}
+                    <div className="mb-2">
+                        <span className="text-xs text-gray-500 dark:text-gray-400 uppercase">
+                            {singleProduct.category}
+                        </span>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mt-1">
+                            {singleProduct.title}
+                        </h2>
+                    </div>
 
-                    {/* Rating */}
-                    <p className="flex items-center gap-1 text-sm mt-3 text-gray-600 dark:text-gray-300">
-                        <RiStarSFill className="text-yellow-500 text-lg" />
-                        <Link
-                            to="/review"
-                            state={{ reviews: singleProduct.reviews }}
-                            className="underline"
-                        >
-                            {singleProduct.rating}
-                        </Link>
-                        ({singleProduct.reviews.length} reviews)
-                    </p>
+                    {/* Rating (if available) */}
+                    {singleProduct.rating && singleProduct.reviews && (
+                        <p className="flex items-center gap-1 text-sm mt-3 text-gray-600 dark:text-gray-300">
+                            <RiStarSFill className="text-yellow-500 text-lg" />
+                            <Link
+                                to="/review"
+                                state={{ reviews: singleProduct.reviews }}
+                                className="underline hover:text-black dark:hover:text-white"
+                            >
+                                {singleProduct.rating}
+                            </Link>
+                            ({singleProduct.reviews.length} reviews)
+                        </p>
+                    )}
 
                     {/* Description */}
-                    <p className="text-gray-600 dark:text-gray-300 mt-3 text-sm">
+                    <p className="text-gray-600 dark:text-gray-300 mt-4 text-sm leading-relaxed">
                         {singleProduct.description}
                     </p>
 
-                    {/* Size */}
-                    <div className="mt-4">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Choose size
-                        </h2>
-                        <div className="flex gap-3 mt-2">
-                            {["S", "M", "L"].map(size => (
-                                <span
-                                    key={size}
-                                    className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm cursor-pointer dark:text-white"
-                                >
-                                    {size}
-                                </span>
-                            ))}
+                    {/* Size (Optional - only if you have sizes in your product) */}
+                    {singleProduct.sizes && singleProduct.sizes.length > 0 && (
+                        <div className="mt-6">
+                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                                Choose size
+                            </h2>
+                            <div className="flex gap-3">
+                                {singleProduct.sizes.map((size: string) => (
+                                    <button
+                                        key={size}
+                                        className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-sm cursor-pointer dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Price + CTA */}
-                    <div className="flex items-center gap-4 mt-6">
-                        <div className="flex flex-col w-40">
-                            <span className="text-sm text-gray-400">Price</span>
-                            <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    <div className="flex items-center gap-4 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <div className="flex flex-col">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">Price</span>
+                            <span className="text-2xl font-bold text-gray-900 dark:text-white">
                                 ${singleProduct.price}
                             </span>
                         </div>
 
                         <button
                             onClick={handleAddToCart}
-                            className="w-full bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-semibold"
+                            className="flex-1 bg-black dark:bg-white dark:text-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition"
                         >
                             Add to Cart
                         </button>

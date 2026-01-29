@@ -4,55 +4,74 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../../store";
 import { addToWishlist, removeFromWishlist } from "../../store/slice/wishlistSlice";
 import { toast } from "react-toastify";
+import { useMemo } from "react";
 
-const ProductCard = ({ onClick, product }) => {
+interface ProductCardProps {
+    onClick: () => void;
+    product: {
+        _id: string;
+        title: string;
+        price: number;
+        image: {
+            url: string;
+        };
+        category?: string;
+    };
+}
+
+const ProductCard = ({ onClick, product }: ProductCardProps) => {
     const dispatch = useDispatch();
 
-    const isSaved = useSelector((state: RootState) =>
-        state.wishlist.items.some((item) => item.id === product.id)
-    );
 
-    const hanldeWishList = (product) => {
+    const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+
+
+    const isSaved = useMemo(() => {
+        return wishlistItems.some((item) => item._id === product._id);
+    }, [wishlistItems, product._id]);
+
+    const handleWishList = (e: React.MouseEvent) => {
+        e.stopPropagation();
+
         if (!isSaved) {
             dispatch(addToWishlist(product));
-            toast.success("Save Product")
+            toast.success("Added to wishlist");
         } else {
-            dispatch(removeFromWishlist(product.id))
+            dispatch(removeFromWishlist(product._id));
+            toast.success("Removed from wishlist");
         }
-    }
+    };
 
     return (
         <div
             onClick={onClick}
-            className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer dark:bg-gray-700"
+            className="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer dark:bg-gray-700 hover:shadow-md transition"
         >
             {/* Image */}
             <div className="relative">
                 <img
-                    src={product.thumbnail}
+                    src={product.image.url}
                     alt={product.title}
-                    className="w-full h-32 object-cove rounded-2xl"
+                    className="w-full h-32 object-cover rounded-2xl"
                 />
 
-                {/*  Heart */}
-                <div
-                    className="absolute top-2 right-2 bg-white/70 backdrop-blur rounded-full p-1"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        hanldeWishList(product)
-                    }}
+                {/* Heart Button */}
+                <button
+                    className="absolute top-2 right-2 bg-white/80 backdrop-blur rounded-full p-2 hover:bg-white transition"
+                    onClick={handleWishList}
+                    aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
                 >
                     {isSaved ? (
                         <FaHeart className="text-red-500 text-lg" />
                     ) : (
                         <CiHeart className="text-gray-700 text-lg" />
                     )}
-                </div>
+                </button>
             </div>
 
             {/* Content */}
             <div className="p-3">
-                <h2 className="text-sm font-medium  truncate dark:text-white">
+                <h2 className="text-sm font-medium truncate dark:text-white">
                     {product.title}
                 </h2>
 
@@ -60,7 +79,7 @@ const ProductCard = ({ onClick, product }) => {
                     <p className="text-sm font-semibold dark:text-gray-50">
                         ${product.price}
                     </p>
-                    <span className="text-xs text-green-600 font-medium ">
+                    <span className="text-xs text-green-600 font-medium">
                         20% OFF
                     </span>
                 </div>

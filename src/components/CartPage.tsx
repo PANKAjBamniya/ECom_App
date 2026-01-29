@@ -17,6 +17,7 @@ const CartPage = () => {
         0
     );
 
+    console.log(items)
     return (
         <div className="min-h-screen w-full flex justify-center bg-gray-50 dark:bg-gray-900">
             <div className="w-full max-w-sm bg-white dark:bg-gray-800 rounded-3xl shadow-md flex flex-col h-[90vh] mt-4 overflow-hidden">
@@ -60,11 +61,10 @@ const CartPage = () => {
                                     <div className="flex items-center justify-between relative">
                                         <div className="flex items-center gap-3">
                                             <img
-                                                src={i.thumbnail}
+                                                src={i.image.url}
                                                 alt={i.title}
                                                 className="w-14 h-14 rounded-lg object-cover border dark:border-gray-600"
                                             />
-
                                             <div>
                                                 <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                                                     {i.title}

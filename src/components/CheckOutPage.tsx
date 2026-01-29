@@ -18,13 +18,13 @@ const CheckOutPage = () => {
 
 
     const orderPlace = () => {
-        console.log(items)
+        // console.log(items)
         toast.success("Order Successfully")
     }
 
     return (
-        <div className="min-h-screen w-full flex justify-center bg-gray-50">
-            <div className="w-full max-w-sm bg-white rounded-3xl shadow-md flex flex-col h-[90vh] mt-4 overflow-hidden">
+        <div className="min-h-screen w-full flex justify-center bg-gray-50 dark:bg-gray-900">
+            <div className="w-full max-w-sm bg-white rounded-3xl shadow-md flex flex-col h-[90vh] mt-4 overflow-hidden ">
 
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">

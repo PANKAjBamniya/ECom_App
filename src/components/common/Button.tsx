@@ -1,20 +1,14 @@
-import React from "react";
-
-type ButtonProps = {
+interface ButtonProps {
     text: string;
+    onClick?: () => void;
     className?: string;
-    type?: "button" | "submit" | "reset";
-};
+}
 
-const Button: React.FC<ButtonProps> = ({
-    text,
-    className = "",
-    type = "button",
-}) => {
+const Button = ({ text, onClick, className = "" }: ButtonProps) => {
     return (
         <button
-            type={type}
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition ${className}`}
+            onClick={onClick}
+            className={`px-4 py-2 rounded-lg font-medium transition ${className}`}
         >
             {text}
         </button>
